@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photography Portfolio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --dark:#120D13;
+    --cream:#F5EFE3;
+    --gold:#C9A24B;
+    --gold-bright: color-mix(in srgb, var(--gold) 82%, white);
+    --surface-line: color-mix(in srgb, var(--cream) 16%, var(--dark));
+    --surface-tint: color-mix(in srgb, var(--cream) 8%, var(--dark));
+    --dark-2: color-mix(in srgb, var(--dark) 80%, black);
+    --dark-tint: color-mix(in srgb, var(--dark) 90%, white);
+    --dark-tint-2: color-mix(in srgb, var(--dark) 80%, white);
+    --cream-shade: color-mix(in srgb, var(--cream) 90%, var(--dark));
+    --cream-shade-2: color-mix(in srgb, var(--cream) 80%, var(--dark));
+    --mid: color-mix(in srgb, var(--cream) 55%, var(--dark));
+    --danger: #c1524f;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter', sans-serif;
+    background:var(--dark);
+    color:var(--cream);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,.display{font-family:'Fraunces', serif;}
+  .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:.06em;}
+  img{max-width:100%; display:block;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  @keyframes riseIn{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes develop{ from{opacity:0; filter:blur(10px); transform:scale(1.04);} to{opacity:1; filter:blur(0); transform:scale(1);} }
+  @keyframes fadeScaleIn{ from{opacity:0; transform:scale(.97);} to{opacity:1; transform:scale(1);} }
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px;
+    border-bottom:1px solid var(--surface-line);
+    position:sticky; top:0; background:var(--dark); z-index:20;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono',monospace; letter-spacing:.12em; font-size:13px; font-weight:500;}
+  .brand svg{width:20px; height:20px;}
+  .icon-btn{
+    background:none; border:1px solid var(--dark); color:var(--dark);
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .2s ease, color .2s ease, transform .15s ease;
+  }
+  .icon-btn:hover{background:var(--dark); color:var(--cream); transform:scale(1.06);}
+  .icon-btn svg{width:17px; height:17px;}
+  .topbar .icon-btn{border-color:var(--cream); color:var(--cream);}
+  .topbar .icon-btn:hover{background:var(--cream); color:var(--dark);}
+  .topbar-actions{display:flex; align-items:center; gap:10px;}
+  .owner-pill{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;
+    background:var(--gold); color:var(--dark); padding:6px 10px; border-radius:20px;
+    animation:fadeScaleIn .3s ease both;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:radial-gradient(ellipse at 50% 25%, color-mix(in srgb, var(--gold) 16%, transparent) 0%, transparent 62%), var(--dark);
+    color:var(--cream); padding:76px 28px 64px; text-align:center; position:relative;
+  }
+  .hero-inner{max-width:640px; margin:0 auto;}
+  .display-title{
+    font-size:clamp(36px, 7vw, 64px); font-weight:600; margin:0 0 18px; line-height:1.05;
+    outline-offset:6px; animation:riseIn .8s ease .1s both;
+  }
+  .bio{font-size:16px; line-height:1.6; color:color-mix(in srgb, var(--cream) 80%, transparent); max-width:480px; margin:0 auto; animation:riseIn .8s ease .2s both;}
+
+  /* ---------- Grid ---------- */
+  main{padding:24px 0 0;}
+  .grid-wrap{max-width:none; margin:0; padding:0;}
+  .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:3px;}
+  .tile{
+    position:relative; aspect-ratio:1; overflow:hidden; background:var(--surface-tint);
+    cursor:pointer; animation:develop .9s ease both; transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .tile img{width:100%; height:100%; object-fit:cover; transition:transform .5s ease;}
+  .tile:hover img{transform:scale(1.06);}
+  .plate{
+    position:absolute; left:0; right:0; bottom:0;
+    background:linear-gradient(0deg, color-mix(in srgb, var(--dark) 92%, transparent) 0%, transparent 100%);
+    color:var(--cream); padding:24px 10px 10px;
+    transform:translateY(12px); opacity:0; transition:all .25s ease;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .tile:hover .plate, .tile:focus-within .plate{transform:translateY(0); opacity:1;}
+  .plate-cap{font-size:12px; font-family:'Inter',sans-serif; letter-spacing:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tile-del{
+    position:absolute; top:8px; right:8px; z-index:5;
+    background:color-mix(in srgb, var(--dark) 75%, transparent); border:none; color:var(--cream);
+    width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity .2s ease, transform .15s ease;
+  }
+  .tile:hover .tile-del{opacity:1;}
+  .tile-del svg{width:13px; height:13px;}
+  .tile-del:hover{background:var(--danger); transform:scale(1.08);}
+
+  .skeleton-tile{aspect-ratio:1; background:linear-gradient(100deg, var(--surface-tint) 30%, var(--surface-line) 50%, var(--surface-tint) 70%); background-size:200% 100%; animation:shimmer 1.4s infinite;}
+  @keyframes shimmer{0%{background-position:200% 0;} 100%{background-position:-200% 0;}}
+
+  .empty-state{text-align:center; padding:90px 20px; max-width:420px; margin:0 auto; animation:riseIn .6s ease both;}
+  .empty-state svg{width:38px; height:38px; margin-bottom:18px; opacity:.6;}
+  .empty-state p{font-size:15px; opacity:.75; margin:0 0 20px;}
+
+  /* ---------- Buttons ---------- */
+  .btn-primary{
+    background:var(--gold); color:var(--dark); border:none; padding:12px 22px;
+    border-radius:24px; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:8px;
+    transition:background .2s ease, transform .15s ease;
+  }
+  .btn-primary:hover{background:var(--gold-bright); transform:translateY(-1px);}
+  .btn-secondary{
+    background:none; color:var(--dark); border:1px solid var(--cream-shade-2); padding:11px 20px;
+    border-radius:24px; font-size:14px; transition:border-color .2s ease;
+  }
+  .btn-secondary:hover{border-color:var(--dark);}
+  .btn-primary:disabled{opacity:.5; cursor:not-allowed; transform:none;}
+  .btn-danger{background:var(--danger); color:var(--cream); border:none; padding:11px 20px; border-radius:24px; font-size:14px; transition:transform .15s ease;}
+  .btn-danger:hover{transform:translateY(-1px);}
+
+  /* ---------- Floating upload button ---------- */
+  .fab{
+    position:fixed; bottom:26px; right:26px; z-index:30;
+    background:var(--gold); color:var(--dark); border:none;
+    padding:14px 22px; border-radius:30px; font-size:14px; font-weight:600;
+    display:flex; align-items:center; gap:8px; box-shadow:0 8px 24px color-mix(in srgb, black 50%, transparent);
+    transition:transform .15s ease, box-shadow .2s ease; animation:fadeScaleIn .3s ease both;
+  }
+  .fab:hover{background:var(--gold-bright); transform:translateY(-2px); box-shadow:0 12px 28px color-mix(in srgb, black 55%, transparent);}
+  .fab svg{width:16px; height:16px;}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--dark); color:color-mix(in srgb, var(--cream) 60%, transparent); text-align:center; padding:26px; font-size:12px; border-top:1px solid var(--surface-line);}
+
+  /* ---------- Modals ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:color-mix(in srgb, var(--dark) 88%, transparent);
+    display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;
+    animation:fadeScaleIn .18s ease both;
+  }
+  .modal-overlay[hidden]{display:none;}
+  .modal{
+    background:var(--cream); color:var(--dark); border-radius:14px; padding:30px;
+    width:100%; max-width:420px; max-height:90vh; overflow-y:auto;
+    animation:modalIn .2s ease;
+  }
+  @keyframes modalIn{from{opacity:0; transform:translateY(8px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);}}
+  .modal h2{font-size:22px; margin:0 0 6px;}
+  .modal p.sub{font-size:13px; opacity:.65; margin:0 0 22px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:12px; margin-bottom:6px; opacity:.75; letter-spacing:.03em;}
+  .field input[type=text], .field input[type=password], .field input[type=email], .field textarea{
+    width:100%; padding:11px 13px; border:1px solid var(--cream-shade-2); border-radius:8px;
+    background:var(--cream); color:var(--dark); font-size:14px; font-family:inherit;
+    transition:border-color .15s ease;
+  }
+  .field textarea{resize:vertical; min-height:70px;}
+  .field input:focus, .field textarea:focus{border-color:var(--dark); outline:none;}
+  .modal-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:22px;}
+  .error-text{color:var(--danger); font-size:12.5px; margin-top:8px; min-height:16px;}
+  .modal-close{position:absolute; top:16px; right:16px;}
+
+  /* Upload modal specifics */
+  .dropzone{
+    border:2px dashed var(--cream-shade-2); border-radius:10px; padding:34px 16px; text-align:center;
+    cursor:pointer; transition:border-color .2s ease, background .2s ease;
+  }
+  .dropzone.drag{border-color:var(--dark); background:var(--cream-shade); animation:pulseBorder 1s ease infinite;}
+  @keyframes pulseBorder{0%,100%{border-color:var(--dark);} 50%{border-color:var(--mid);}}
+  .dropzone svg{width:26px; height:26px; margin-bottom:10px; opacity:.6;}
+  .dropzone p{font-size:13px; opacity:.7; margin:0;}
+  .upload-list{margin-top:18px; display:flex; flex-direction:column; gap:10px; max-height:260px; overflow-y:auto;}
+  .upload-row{display:flex; gap:10px; align-items:center; border:1px solid var(--cream-shade-2); border-radius:8px; padding:8px; animation:fadeScaleIn .25s ease both;}
+  .upload-row img{width:52px; height:52px; object-fit:cover; border-radius:6px; flex-shrink:0;}
+  .upload-row input{flex:1; border:none; background:none; font-size:13px; padding:6px; font-family:inherit; color:var(--dark);}
+  .upload-row input:focus{outline:none;}
+  .upload-row .remove{background:none; border:none; color:var(--mid); width:24px; height:24px; flex-shrink:0;}
+  .upload-row .remove svg{width:13px; height:13px;}
+  .upload-row .status{font-size:11px; opacity:.6; width:70px; text-align:right; flex-shrink:0;}
+
+  /* Confirm modal */
+  .modal.small{max-width:340px;}
+
+  /* ---------- Lightbox ---------- */
+  .lightbox-overlay{position:fixed; inset:0; background:color-mix(in srgb, var(--dark) 96%, black); z-index:110; display:flex; flex-direction:column; animation:fadeScaleIn .2s ease both;}
+  .lightbox-overlay[hidden]{display:none;}
+  .lb-top{display:flex; justify-content:flex-end; padding:16px 20px;}
+  .lb-close{background:none; border:none; color:var(--cream); width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition:background .15s ease;}
+  .lb-close:hover{background:color-mix(in srgb, var(--cream) 12%, transparent);}
+  .lb-close svg{width:20px; height:20px;}
+  .lb-body{flex:1; display:flex; align-items:center; justify-content:center; position:relative; min-height:0; padding:0 60px;}
+  .lb-img-wrap{max-width:100%; max-height:70vh; display:flex; align-items:center; justify-content:center; position:relative;}
+  .lb-img-wrap img{max-width:100%; max-height:70vh; object-fit:contain; border-radius:2px; transition:filter .35s ease;}
+  .lb-loading-tag{position:absolute; bottom:8px; right:8px; background:color-mix(in srgb, var(--dark) 70%, transparent); color:var(--cream); font-size:10px; padding:4px 8px; border-radius:10px; font-family:'IBM Plex Mono',monospace;}
+  .lb-nav{position:absolute; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--cream); width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition:background .15s ease, transform .15s ease;}
+  .lb-nav:hover{background:color-mix(in srgb, var(--cream) 12%, transparent); transform:translateY(-50%) scale(1.08);}
+  .lb-nav svg{width:22px; height:22px;}
+  .lb-nav.prev{left:6px;} .lb-nav.next{right:6px;}
+  .lb-plate{max-width:640px; margin:0 auto; width:100%; padding:20px 26px 30px; color:var(--cream); text-align:center;}
+  .lb-plate-cap{font-family:'Fraunces',serif; font-size:19px; margin-bottom:18px;}
+  .lb-owner-actions{display:flex; gap:10px; justify-content:center;}
+  .lb-owner-actions button{
+    background:none; border:1px solid color-mix(in srgb, var(--cream) 35%, transparent); color:var(--cream);
+    font-size:12px; padding:7px 14px; border-radius:18px; display:inline-flex; align-items:center; gap:6px;
+    transition:background .15s ease;
+  }
+  .lb-owner-actions button:hover{background:color-mix(in srgb, var(--cream) 12%, transparent);}
+  .lb-owner-actions button svg{width:12px; height:12px;}
+
+  /* ---------- Toasts ---------- */
+  .toast-container{position:fixed; bottom:26px; left:26px; z-index:200; display:flex; flex-direction:column; gap:8px;}
+  .toast{background:var(--cream); color:var(--dark); padding:12px 18px; border-radius:8px; font-size:13px; box-shadow:0 6px 18px color-mix(in srgb, black 45%, transparent); animation:toastIn .25s cubic-bezier(.34,1.56,.64,1);}
+  .toast.error{background:var(--danger); color:var(--cream);}
+  @keyframes toastIn{from{opacity:0; transform:translateY(10px) scale(.95);} to{opacity:1; transform:translateY(0) scale(1);}}
+
+  @media (max-width:640px){
+    .topbar{padding:14px 18px;}
+    .hero{padding:56px 20px 46px;}
+    .grid{gap:2px;}
+    .lb-body{padding:0 6px;}
+    .lb-nav{width:36px; height:36px;}
+    .fab{right:16px; bottom:16px; padding:12px 18px;}
+    .plate{opacity:1; transform:translateY(0);} /* always show caption on touch devices */
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+  <nav class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
+      <span>GALLERY</span>
+    </div>
+    <div class="topbar-actions">
+      <span id="ownerPill" class="owner-pill mono" hidden>OWNER MODE</span>
+      <button id="ownerBtn" class="icon-btn" title="Owner access">
+        <svg id="lockIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1 class="display-title" id="siteTitle">FRAME BY FRAME</h1>
+      <p class="bio" id="siteBio">A running exhibition of light, shadow, and everything in between.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid-wrap">
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty-state" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
+        <p id="emptyText">No plates on the wall yet.</p>
+        <button id="emptyUploadBtn" class="btn-primary" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Upload the first photo
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p id="footerLine">© 2026 — a photograph collection.</p>
+  </footer>
+
+  <button id="fabUpload" class="fab" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    Upload
+  </button>
+
+  <!-- Login modal -->
+  <div id="loginModal" class="modal-overlay" hidden>
+    <div class="modal" style="position:relative;">
+      <button class="icon-btn modal-close" id="loginClose" style="border:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <h2>Owner access</h2>
+      <p class="sub">Sign in with your owner account to upload and manage photos.</p>
+      <div class="field">
+        <label for="emailInput">Email</label>
+        <input type="email" id="emailInput" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="passwordInput">Password</label>
+        <input type="password" id="passwordInput" autocomplete="current-password">
+      </div>
+      <p class="error-text" id="loginError"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="loginCancel">Cancel</button>
+        <button class="btn-primary" id="loginSubmit">Log in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload modal -->
+  <div id="uploadModal" class="modal-overlay" hidden>
+    <div class="modal" style="max-width:480px;">
+      <h2>Upload photos</h2>
+      <p class="sub">Photos are optimized for the web automatically. Add an optional caption to each.</p>
+      <div class="dropzone" id="dropzone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        <p>Drag photos here, or click to browse</p>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden>
+      </div>
+      <div class="upload-list" id="uploadList"></div>
+      <p class="error-text" id="uploadError"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="uploadCancel">Cancel</button>
+        <button class="btn-primary" id="uploadSubmit" disabled>Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit caption modal -->
+  <div id="captionModal" class="modal-overlay" hidden>
+    <div class="modal small">
+      <h2>Edit caption</h2>
+      <div class="field" style="margin-top:16px;">
+        <label for="captionInput">Caption</label>
+        <textarea id="captionInput" maxlength="140"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="captionCancel">Cancel</button>
+        <button class="btn-primary" id="captionSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm delete modal -->
+  <div id="confirmModal" class="modal-overlay" hidden>
+    <div class="modal small">
+      <h2>Delete this photo?</h2>
+      <p class="sub">This can't be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="confirmCancel">Cancel</button>
+        <button class="btn-danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox-overlay" hidden>
+    <div class="lb-top">
+      <button class="lb-close" id="lbClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="lb-body">
+      <button class="lb-nav prev" id="lbPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="lb-img-wrap">
+        <img id="lbImg" src="" alt="">
+        <span class="lb-loading-tag mono" id="lbLoadingTag" hidden>LOADING FULL QUALITY…</span>
+      </div>
+      <button class="lb-nav next" id="lbNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+    <div class="lb-plate">
+      <p class="lb-plate-cap" id="lbCap">Untitled</p>
+      <div class="lb-owner-actions" id="lbOwnerActions" hidden>
+        <button id="lbEdit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Edit caption</button>
+        <button id="lbDelete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-7 0v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V7"/></svg>Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase (compat SDK — plain <script> tags, no bundler needed, works when opened directly as a file) -->
+  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  // ================================================================
+  // PASTE YOUR FIREBASE CONFIG HERE (Firebase console > Project settings
+  // > Your apps > Web app > SDK setup and configuration).
+  // ================================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyAShUxJGPZGpSoOQHo9ObvSBttYpEqsse4",
+    authDomain: "shutternestt.firebaseapp.com",
+    projectId: "shutternestt",
+    storageBucket: "shutternestt.firebasestorage.app",
+    messagingSenderId: "25615499135",
+    appId: "1:25615499135:web:c2219eb42430bf009fa44a",
+    measurementId: "G-1BQEN27VNC"
+  };
+  // ================================================================
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const CHUNK_SIZE = 900000;           // chars per Firestore chunk doc (stays under the 1MB doc limit)
+  const FULL_TARGET_CHARS = 8 * 1024 * 1024; // ~6MB binary — quality backs off above this
+  const THUMB_MAX_DIM = 520;
+  const THUMB_QUALITY = 0.62;
+  const FULL_MAX_DIM = 2400;
+
+  let isOwner = false;
+  let photos = [];        // [{id, caption, uploadedAt, plateNo, thumb, chunkCount}]
+  let settings = { title: "FRAME BY FRAME", bio: "A running exhibition of light, shadow, and everything in between.", nextPlateNo: 1 };
+  let fullCache = {};      // id -> reassembled full dataURL
+  let lbIndex = 0;
+  let pendingFiles = [];   // for upload modal: [{file, caption, previewUrl}]
+  let deleteTargetId = null;
+  let captionEditId = null;
+
+  const $ = (id) => document.getElementById(id);
+  const escapeHTML = (s) => (s || "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const fmtDate = (iso) => { try { return new Date(iso).toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'}); } catch(e){ return ""; } };
+
+  function toast(msg, isError){
+    const el = document.createElement('div');
+    el.className = 'toast' + (isError ? ' error' : '');
+    el.textContent = msg;
+    $('toastContainer').appendChild(el);
+    setTimeout(() => el.remove(), 3400);
+  }
+  function showModal(id){ $(id).hidden = false; }
+  function hideModal(id){ $(id).hidden = true; }
+
+  // ---------- Firestore helpers ----------
+  async function fetchSettings(){
+    try {
+      const doc = await db.collection('settings').doc('site').get();
+      if (doc.exists) return Object.assign({}, settings, doc.data());
+      return settings;
+    } catch(e){ return settings; }
+  }
+  async function saveSettings(next){
+    settings = next;
+    await db.collection('settings').doc('site').set(settings, { merge: true });
+  }
+  async function fetchPhotos(){
+    try {
+      const snap = await db.collection('photos').orderBy('plateNo', 'desc').get();
+      return snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    } catch(e){ return []; }
+  }
+  function chunkString(str, size){
+    const chunks = [];
+    for (let i = 0; i < str.length; i += size) chunks.push(str.slice(i, i + size));
+    return chunks;
+  }
+  async function fetchFull(photo){
+    if (fullCache[photo.id]) return fullCache[photo.id];
+    const snap = await db.collection('photos').doc(photo.id).collection('chunks')
+      .orderBy(firebase.firestore.FieldPath.documentId()).get();
+    const full = snap.docs.map(d => d.data().data).join('');
+    fullCache[photo.id] = full;
+    return full;
+  }
+  async function deletePhotoDoc(id, chunkCount){
+    const docRef = db.collection('photos').doc(id);
+    const jobs = [];
+    for (let i = 0; i < chunkCount; i++){
+      jobs.push(docRef.collection('chunks').doc(String(i).padStart(4,'0')).delete());
+    }
+    jobs.push(docRef.delete());
+    await Promise.all(jobs);
+  }
+
+  // ---------- Init ----------
+  async function init(){
+    try {
+      settings = await fetchSettings();
+      photos = await fetchPhotos();
+    } catch(e){
+      toast("Couldn't load the gallery. Check your connection and refresh.", true);
+    } finally {
+      renderSettings();
+      renderGrid();
+      bindEvents();
+      auth.onAuthStateChanged((user) => {
+        isOwner = !!user;
+        renderOwnerUI();
+      });
+    }
+  }
+
+  function buildSkeleton(){
+    let html = "";
+    for (let i=0;i<9;i++) html += '<div class="skeleton-tile"></div>';
+    $('grid').innerHTML = html;
+  }
+  buildSkeleton();
+
+  // ---------- Render ----------
+  function renderSettings(){
+    $('siteTitle').textContent = settings.title;
+    $('siteBio').textContent = settings.bio;
+    $('footerLine').textContent = `© ${new Date().getFullYear()} — ${photos.length} photograph${photos.length===1?'':'s'} on view.`;
+    document.title = settings.title;
+  }
+
+  function renderGrid(){
+    const grid = $('grid');
+    const empty = $('empty');
+    if (photos.length === 0){
+      grid.hidden = true;
+      empty.hidden = false;
+      $('emptyText').textContent = isOwner ? "No plates on the wall yet. Add your first photo." : "No plates on the wall yet.";
+      $('emptyUploadBtn').hidden = !isOwner;
+      return;
+    }
+    empty.hidden = true;
+    grid.hidden = false;
+    grid.innerHTML = photos.map((p, i) => `
+      <div class="tile" data-id="${p.id}" data-index="${i}" tabindex="0" style="animation-delay:${Math.min(i,16)*0.05}s">
+        <img src="${p.thumb}" loading="lazy" alt="${escapeHTML(p.caption) || 'Untitled photograph'}">
+        <div class="plate">
+          <span class="plate-cap">${escapeHTML(p.caption) || 'Untitled'}</span>
+        </div>
+        ${isOwner ? `<button class="tile-del" data-id="${p.id}" title="Delete photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-7 0v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V7"/></svg>
+        </button>` : ''}
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.tile img').forEach(img => {
+      if (img.complete) img.classList.add('loaded');
+      else img.addEventListener('load', () => img.classList.add('loaded'));
+    });
+
+    grid.querySelectorAll('.tile').forEach(tile => {
+      tile.addEventListener('click', (e) => {
+        if (e.target.closest('.tile-del')) return;
+        openLightbox(parseInt(tile.dataset.index, 10));
+      });
+      tile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') openLightbox(parseInt(tile.dataset.index, 10));
+      });
+      tile.addEventListener('animationend', () => { tile.style.animation = 'none'; });
+      tile.addEventListener('mousemove', (e) => {
+        const r = tile.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        tile.style.transform = `perspective(700px) rotateX(${(-py*7).toFixed(2)}deg) rotateY(${(px*7).toFixed(2)}deg) scale(1.04)`;
+        tile.style.boxShadow = '0 18px 34px -14px rgba(0,0,0,.35)';
+        tile.style.zIndex = '2';
+      });
+      tile.addEventListener('mouseleave', () => {
+        tile.style.transform = '';
+        tile.style.boxShadow = '';
+        tile.style.zIndex = '';
+      });
+    });
+    grid.querySelectorAll('.tile-del').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteTargetId = btn.dataset.id;
+        showModal('confirmModal');
+      });
+    });
+  }
+
+  function renderOwnerUI(){
+    $('ownerPill').hidden = !isOwner;
+    $('ownerBtn').title = isOwner ? "Log out" : "Owner access";
+    $('lockIcon').innerHTML = isOwner
+      ? '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/>'
+      : '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>';
+    $('fabUpload').hidden = !isOwner;
+    renderGrid();
+  }
+
+  // ---------- Events ----------
+  function bindEvents(){
+    $('ownerBtn').addEventListener('click', () => {
+      if (isOwner){
+        auth.signOut();
+        toast("Logged out.");
+      } else {
+        $('emailInput').value = "";
+        $('passwordInput').value = "";
+        $('loginError').textContent = "";
+        showModal('loginModal');
+        setTimeout(() => $('emailInput').focus(), 50);
+      }
+    });
+    $('loginClose').addEventListener('click', () => hideModal('loginModal'));
+    $('loginCancel').addEventListener('click', () => hideModal('loginModal'));
+    $('loginSubmit').addEventListener('click', attemptLogin);
+    $('passwordInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
+    $('emailInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('passwordInput').focus(); });
+
+    $('fabUpload').addEventListener('click', openUploadModal);
+    $('emptyUploadBtn').addEventListener('click', openUploadModal);
+    $('uploadCancel').addEventListener('click', closeUploadModal);
+    $('dropzone').addEventListener('click', () => $('fileInput').click());
+    $('dropzone').addEventListener('dragover', (e) => { e.preventDefault(); $('dropzone').classList.add('drag'); });
+    $('dropzone').addEventListener('dragleave', () => $('dropzone').classList.remove('drag'));
+    $('dropzone').addEventListener('drop', (e) => {
+      e.preventDefault(); $('dropzone').classList.remove('drag');
+      handleFiles(e.dataTransfer.files);
+    });
+    $('fileInput').addEventListener('change', (e) => handleFiles(e.target.files));
+    $('uploadSubmit').addEventListener('click', processUpload);
+
+    $('confirmCancel').addEventListener('click', () => { hideModal('confirmModal'); deleteTargetId = null; });
+    $('confirmDelete').addEventListener('click', performDelete);
+
+    $('captionCancel').addEventListener('click', () => hideModal('captionModal'));
+    $('captionSave').addEventListener('click', saveCaption);
+
+    $('lbClose').addEventListener('click', closeLightbox);
+    $('lbPrev').addEventListener('click', () => navigateLightbox(-1));
+    $('lbNext').addEventListener('click', () => navigateLightbox(1));
+    $('lbEdit').addEventListener('click', () => {
+      captionEditId = photos[lbIndex].id;
+      $('captionInput').value = photos[lbIndex].caption || "";
+      showModal('captionModal');
+    });
+    $('lbDelete').addEventListener('click', () => {
+      deleteTargetId = photos[lbIndex].id;
+      showModal('confirmModal');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!$('lightbox').hidden){
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navigateLightbox(-1);
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+      } else if (!$('loginModal').hidden && e.key === 'Escape'){
+        hideModal('loginModal');
+      }
+    });
+  }
+
+  async function attemptLogin(){
+    const email = $('emailInput').value.trim();
+    const pass = $('passwordInput').value;
+    $('loginError').textContent = "";
+    $('loginSubmit').disabled = true;
+    try {
+      await auth.signInWithEmailAndPassword(email, pass);
+      hideModal('loginModal');
+      toast("Welcome back — owner mode on.");
+    } catch(e){
+      $('loginError').textContent = describeAuthError(e);
+      console.error('Firebase auth error:', e.code, e.message);
+    } finally {
+      $('loginSubmit').disabled = false;
+    }
+  }
+
+  function describeAuthError(e){
+    const code = e && e.code;
+    switch(code){
+      case 'auth/invalid-api-key':
+      case 'auth/api-key-not-valid.-please-pass-a-valid-api-key.':
+        return "Your Firebase config's API key looks wrong — check firebaseConfig at the top of the script.";
+      case 'auth/configuration-not-found':
+      case 'auth/operation-not-allowed':
+        return "Email/Password sign-in isn't enabled yet — turn it on in Firebase console > Authentication > Sign-in method.";
+      case 'auth/invalid-credential':
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return "That email/password doesn't match any user — check Authentication > Users in Firebase console.";
+      case 'auth/invalid-email':
+        return "That doesn't look like a valid email address.";
+      case 'auth/too-many-requests':
+        return "Too many attempts — wait a moment and try again.";
+      case 'auth/network-request-failed':
+        return "Couldn't reach Firebase — check your internet connection or any extension blocking Google APIs.";
+      default:
+        return code ? `Login failed (${code}). Check the browser console for details.` : "Login failed. Check the browser console for details.";
+    }
+  }
+
+  // ---------- Upload flow ----------
+  function openUploadModal(){
+    pendingFiles = [];
+    $('uploadList').innerHTML = "";
+    $('uploadError').textContent = "";
+    $('uploadSubmit').disabled = true;
+    $('uploadSubmit').textContent = "Upload";
+    showModal('uploadModal');
+  }
+  function closeUploadModal(){ hideModal('uploadModal'); }
+
+  function handleFiles(fileList){
+    const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+    if (files.length === 0) return;
+    files.forEach(file => {
+      const previewUrl = URL.createObjectURL(file);
+      pendingFiles.push({ file, caption: "", previewUrl });
+    });
+    renderUploadList();
+  }
+
+  function renderUploadList(){
+    const list = $('uploadList');
+    list.innerHTML = pendingFiles.map((p, i) => `
+      <div class="upload-row" data-idx="${i}">
+        <img src="${p.previewUrl}" alt="">
+        <input type="text" placeholder="Caption (optional)" value="${escapeHTML(p.caption)}" data-idx="${i}">
+        <span class="status mono" data-status="${i}"></span>
+        <button class="remove" data-remove="${i}" title="Remove">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+    `).join('');
+    list.querySelectorAll('input[type=text]').forEach(inp => {
+      inp.addEventListener('input', () => { pendingFiles[parseInt(inp.dataset.idx,10)].caption = inp.value; });
+    });
+    list.querySelectorAll('.remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.remove, 10);
+        pendingFiles.splice(idx, 1);
+        renderUploadList();
+      });
+    });
+    $('uploadSubmit').disabled = pendingFiles.length === 0;
+  }
+
+  async function loadBitmap(file){
+    if ('createImageBitmap' in window){
+      try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+      catch(e){ /* fall through */ }
+    }
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = () => { img.onload = () => resolve(img); img.onerror = reject; img.src = reader.result; };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function drawToDataURL(bitmap, maxDim, quality){
+    const w0 = bitmap.width, h0 = bitmap.height;
+    let w = w0, h = h0;
+    if (Math.max(w, h) > maxDim){
+      const scale = maxDim / Math.max(w, h);
+      w = Math.round(w * scale); h = Math.round(h * scale);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', quality);
+  }
+
+  function makeFull(bitmap){
+    let quality = 0.88, maxDim = FULL_MAX_DIM;
+    let dataUrl = drawToDataURL(bitmap, maxDim, quality);
+    while (dataUrl.length > FULL_TARGET_CHARS && quality > 0.5){
+      quality -= 0.08;
+      dataUrl = drawToDataURL(bitmap, maxDim, quality);
+    }
+    while (dataUrl.length > FULL_TARGET_CHARS && maxDim > 1000){
+      maxDim -= 300;
+      dataUrl = drawToDataURL(bitmap, maxDim, quality);
+    }
+    return dataUrl;
+  }
+
+  async function processUpload(){
+    if (pendingFiles.length === 0) return;
+    $('uploadSubmit').disabled = true;
+    $('uploadError').textContent = "";
+    let nextPlateNo = settings.nextPlateNo || (photos.length + 1);
+    const created = [];
+
+    try {
+      for (let i = 0; i < pendingFiles.length; i++){
+        const statusEl = document.querySelector(`[data-status="${i}"]`);
+        if (statusEl) statusEl.textContent = "processing…";
+        const { file, caption } = pendingFiles[i];
+        const bitmap = await loadBitmap(file);
+        const thumb = drawToDataURL(bitmap, THUMB_MAX_DIM, THUMB_QUALITY);
+        const full = makeFull(bitmap);
+        const chunks = chunkString(full, CHUNK_SIZE);
+        const plateNo = nextPlateNo++;
+        const uploadedAt = new Date().toISOString();
+
+        if (statusEl) statusEl.textContent = "saving…";
+        const docRef = db.collection('photos').doc();
+        await docRef.set({ caption: caption.trim(), uploadedAt, plateNo, thumb, chunkCount: chunks.length });
+        await Promise.all(chunks.map((chunk, ci) =>
+          docRef.collection('chunks').doc(String(ci).padStart(4,'0')).set({ data: chunk })
+        ));
+
+        created.push({ id: docRef.id, caption: caption.trim(), uploadedAt, plateNo, thumb, chunkCount: chunks.length });
+        if (statusEl) statusEl.textContent = "done ✓";
+      }
+
+      await saveSettings(Object.assign({}, settings, { nextPlateNo }));
+      photos = [...created.reverse(), ...photos];
+      renderSettings();
+      renderGrid();
+      closeUploadModal();
+      toast(`Uploaded ${created.length} photo${created.length===1?'':'s'}.`);
+    } catch(e){
+      $('uploadError').textContent = "Something went wrong while uploading. Please check your Firebase setup and try again.";
+      $('uploadSubmit').disabled = false;
+      $('uploadSubmit').textContent = "Upload";
+    }
+  }
+
+  // ---------- Delete ----------
+  async function performDelete(){
+    const id = deleteTargetId;
+    if (!id) return;
+    hideModal('confirmModal');
+    const p = photos.find(p => p.id === id);
+    try {
+      await deletePhotoDoc(id, p ? p.chunkCount : 0);
+      photos = photos.filter(p => p.id !== id);
+      delete fullCache[id];
+      renderSettings();
+      if (!$('lightbox').hidden) closeLightbox();
+      renderGrid();
+      toast("Photo deleted.");
+    } catch(e){
+      toast("Couldn't delete that photo. Try again.", true);
+    } finally {
+      deleteTargetId = null;
+    }
+  }
+
+  // ---------- Edit caption ----------
+  async function saveCaption(){
+    const p = photos.find(p => p.id === captionEditId);
+    if (!p) return hideModal('captionModal');
+    const newCaption = $('captionInput').value.trim();
+    try {
+      await db.collection('photos').doc(p.id).update({ caption: newCaption });
+      p.caption = newCaption;
+      hideModal('captionModal');
+      renderGrid();
+      if (!$('lightbox').hidden) renderLightboxContent();
+      toast("Caption updated.");
+    } catch(e){ toast("Couldn't save caption. Try again.", true); }
+  }
+
+  // ---------- Lightbox ----------
+  function openLightbox(index){
+    lbIndex = index;
+    showModal('lightbox');
+    renderLightboxContent();
+  }
+  function closeLightbox(){ hideModal('lightbox'); }
+  function navigateLightbox(delta){
+    lbIndex = (lbIndex + delta + photos.length) % photos.length;
+    renderLightboxContent();
+  }
+  async function renderLightboxContent(){
+    const p = photos[lbIndex];
+    if (!p) return closeLightbox();
+    $('lbImg').src = p.thumb;
+    $('lbLoadingTag').hidden = false;
+    $('lbNum').textContent = `PLATE ${String(p.plateNo).padStart(3,'0')} / ${photos.length}`;
+    $('lbCap').textContent = p.caption || "Untitled";
+    $('lbDate').textContent = fmtDate(p.uploadedAt);
+    $('lbOwnerActions').hidden = !isOwner;
+
+    try {
+      const full = await fetchFull(p);
+      if (photos[lbIndex] && photos[lbIndex].id === p.id){
+        $('lbImg').src = full;
+        $('lbLoadingTag').hidden = true;
+      }
+    } catch(e){
+      $('lbLoadingTag').hidden = true;
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
