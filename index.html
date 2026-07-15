@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shutter Nest</title>
+<title>ShutterNest</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
@@ -84,12 +84,12 @@
   /* ---------- Grid ---------- */
   main{padding:24px 0 0;}
   .grid-wrap{max-width:none; margin:0; padding:0;}
-  .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:3px;}
+  .grid{display:grid; grid-template-columns:repeat(2, 1fr); grid-auto-rows:4px; gap:6px;}
   .tile{
-    position:relative; aspect-ratio:1; overflow:hidden; background:var(--surface-tint);
+    position:relative; overflow:hidden; background:var(--surface-tint);
     cursor:pointer; animation:develop .9s ease both; transition:transform .25s ease, box-shadow .25s ease;
   }
-  .tile img{width:100%; height:100%; object-fit:cover; opacity:0; transition:transform .5s ease, opacity .4s ease;}
+  .tile img{width:100%; height:auto; display:block; object-fit:cover; opacity:0; transition:transform .5s ease, opacity .4s ease;}
   .tile img.loaded{opacity:1;}
   .tile:hover img{transform:scale(1.06);}
   .plate{
@@ -111,8 +111,10 @@
   .tile-del svg{width:13px; height:13px;}
   .tile-del:hover{background:var(--danger); transform:scale(1.08);}
 
-  .skeleton-tile{aspect-ratio:1; background:linear-gradient(100deg, var(--surface-tint) 30%, var(--surface-line) 50%, var(--surface-tint) 70%); background-size:200% 100%; animation:shimmer 1.4s infinite;}
+  .skeleton-tile{background:linear-gradient(100deg, var(--surface-tint) 30%, var(--surface-line) 50%, var(--surface-tint) 70%); background-size:200% 100%; animation:shimmer 1.4s infinite;}
   @keyframes shimmer{0%{background-position:200% 0;} 100%{background-position:-200% 0;}}
+
+  .view-more-wrap{text-align:center; padding:36px 20px;}
 
   .empty-state{text-align:center; padding:90px 20px; max-width:420px; margin:0 auto; animation:riseIn .6s ease both;}
   .empty-state svg{width:38px; height:38px; margin-bottom:18px; opacity:.6;}
@@ -236,7 +238,7 @@
   @media (max-width:640px){
     .topbar{padding:14px 18px;}
     .hero{padding:56px 20px 46px;}
-    .grid{gap:2px;}
+    .grid{gap:4px;}
     .lb-body{padding:0 6px;}
     .lb-nav{width:36px; height:36px;}
     .fab{right:16px; bottom:16px; padding:12px 18px;}
@@ -272,6 +274,9 @@
   <main>
     <div class="grid-wrap">
       <div id="grid" class="grid"></div>
+      <div id="viewMoreWrap" class="view-more-wrap" hidden>
+        <button id="viewMoreBtn" class="btn-secondary">View more photos</button>
+      </div>
       <div id="empty" class="empty-state" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
         <p id="emptyText">No plates on the wall yet.</p>
@@ -419,6 +424,8 @@
   const FULL_MAX_DIM = 2400;
 
   let isOwner = false;
+  const PAGE_SIZE = 12;
+  let visibleCount = PAGE_SIZE;
   let photos = [];        // [{id, caption, uploadedAt, plateNo, thumb, chunkCount}]
   let settings = { title: "FRAME BY FRAME", bio: "A running exhibition of light, shadow, and everything in between.", nextPlateNo: 1 };
   let fullCache = {};      // id -> reassembled full dataURL
@@ -499,9 +506,16 @@
     }
   }
 
+  const MASONRY_ROW = 4;
+  const MASONRY_GAP = 6;
+  const pxToSpan = (px) => Math.ceil((px + MASONRY_GAP) / (MASONRY_ROW + MASONRY_GAP));
+
   function buildSkeleton(){
     let html = "";
-    for (let i=0;i<9;i++) html += '<div class="skeleton-tile"></div>';
+    for (let i=0;i<10;i++){
+      const h = 160 + Math.round(Math.random() * 140);
+      html += `<div class="skeleton-tile" style="grid-row-end:span ${pxToSpan(h)}"></div>`;
+    }
     $('grid').innerHTML = html;
   }
   buildSkeleton();
@@ -517,8 +531,10 @@
   function renderGrid(){
     const grid = $('grid');
     const empty = $('empty');
+    const viewMoreWrap = $('viewMoreWrap');
     if (photos.length === 0){
       grid.hidden = true;
+      viewMoreWrap.hidden = true;
       empty.hidden = false;
       $('emptyText').textContent = isOwner ? "No plates on the wall yet. Add your first photo." : "No plates on the wall yet.";
       $('emptyUploadBtn').hidden = !isOwner;
@@ -526,7 +542,8 @@
     }
     empty.hidden = true;
     grid.hidden = false;
-    grid.innerHTML = photos.map((p, i) => `
+    const visible = photos.slice(0, visibleCount);
+    grid.innerHTML = visible.map((p, i) => `
       <div class="tile" data-id="${p.id}" data-index="${i}" tabindex="0" style="animation-delay:${Math.min(i,16)*0.05}s">
         <img src="${p.thumb}" loading="lazy" alt="${escapeHTML(p.caption) || 'Untitled photograph'}">
         <div class="plate">
@@ -537,6 +554,13 @@
         </button>` : ''}
       </div>
     `).join('');
+
+    if (photos.length > visibleCount){
+      viewMoreWrap.hidden = false;
+      $('viewMoreBtn').textContent = `View more photos (${photos.length - visibleCount} left)`;
+    } else {
+      viewMoreWrap.hidden = true;
+    }
 
     grid.querySelectorAll('.tile img').forEach(img => {
       if (img.complete) img.classList.add('loaded');
@@ -611,6 +635,10 @@
 
     $('fabUpload').addEventListener('click', openUploadModal);
     $('emptyUploadBtn').addEventListener('click', openUploadModal);
+    $('viewMoreBtn').addEventListener('click', () => {
+      visibleCount += PAGE_SIZE;
+      renderGrid();
+    });
     $('uploadCancel').addEventListener('click', closeUploadModal);
     $('dropzone').addEventListener('click', () => $('fileInput').click());
     $('dropzone').addEventListener('dragover', (e) => { e.preventDefault(); $('dropzone').classList.add('drag'); });
